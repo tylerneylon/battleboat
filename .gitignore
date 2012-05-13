@@ -27,3 +27,6 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#Local debug file(s)
+debug_log
