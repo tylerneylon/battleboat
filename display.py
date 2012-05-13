@@ -34,6 +34,7 @@ class display():
     self.term.setscrreg(1, term_height - 2)
     self.term.scrollok(True)
     self.term.border()
+    self.term.move(1, 1)
     self.win.refresh()
     self.term.refresh()
 
@@ -53,25 +54,40 @@ class display():
     f.write('print_str\n')
     self.term.addstr(self.termline, 1, s)
     self.termline += 1
-    if self.termline == term_height - 1:
-      try:
-        self.term.scroll(1)
-        self.term.border()
-      except Exception, e:
-        f.write('%s\n' % `e`)
-      self.termline = term_height - 2 
-    self.term.move(self.termline, 1)
-    self.term.refresh()
+    self._scroll_if_needed()
 
   def input_str(self):
-    pass
+    f.write('input_str\n')
+    s = ''
+    col = 1
+    keep_going = True
+    while keep_going:
+      c = self.term.getch()
+      keep_going = (c != ord('\n'))
+      if keep_going:
+        s += chr(c)
+        self.term.addstr(self.termline, col, chr(c))
+        col += 1
+    self.termline += 1
+    self._scroll_if_needed()
+    return s
+
+  def _scroll_if_needed(self):
+    if self.termline == term_height - 1:
+      self.termline = term_height - 2
+      self.term.scroll(1)
+      self.term.border()
+    self.term.move(self.termline, 1)
+    self.term.refresh()
   
 
 if __name__ == '__main__':
   d = display()
   slist = ['hi', 'there', 'how', 'are', 'you', 'fine', 'thanks', 'nice', 'of', 'you', 'to', 'ask']
   for s in slist:
-    d.print_str(s)
     d.win.getch()
+    d.print_str(s)
+  s = d.input_str()
+  d.print_str('I got the string %s' % s)
   time.sleep(2)
 
