@@ -28,7 +28,9 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
-
 # eclipse
 .project
 .pydevproject
+
+#Local debug file(s)
+debug_log
