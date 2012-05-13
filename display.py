@@ -34,6 +34,7 @@ class display():
     self.term.setscrreg(1, term_height - 2)
     self.term.scrollok(True)
     self.term.border()
+    self.term.move(1, 1)
     self.win.refresh()
     self.term.refresh()
 
@@ -58,13 +59,15 @@ class display():
   def input_str(self):
     f.write('input_str\n')
     s = ''
+    col = 1
     keep_going = True
-    curses.echo()
     while keep_going:
       c = self.term.getch()
       keep_going = (c != ord('\n'))
-      s += chr(c)
-    curses.noecho()
+      if keep_going:
+        s += chr(c)
+        self.term.addstr(self.termline, col, chr(c))
+        col += 1
     self.termline += 1
     self._scroll_if_needed()
     return s
@@ -85,6 +88,6 @@ if __name__ == '__main__':
     d.win.getch()
     d.print_str(s)
   s = d.input_str()
-  d.print_str('I got the string "%s"' % s)
+  d.print_str('I got the string %s' % s)
   time.sleep(2)
 
