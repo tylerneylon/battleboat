@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+import constants
+
+
 class Terminal(object):
   """Acts as the controller for BattleBoat"""
   
@@ -38,9 +41,51 @@ class Terminal(object):
     self.player_a_name = self.get_input()
     self.output("Enter player B's name:", new_line=False)
     self.player_b_name = self.get_input()
-    self.output(self.player_a_name + ", turn around! Hit enter when done.")
-    self.output(self.player_a_name + ", let's enter your ships.")
-    # Enter each ship type.
+    self.ships = {}
+    self.ships[self.player_a_name] = {}
+    self.ships[self.player_b_name] = {}
+    
+    # Enter ships for player A
+    self.output(self.player_b_name + ", turn around! Hit enter when done.")
+    self.get_input()
+    self.enter_ships_for(self.player_a_name)
+    self.output("")
+    
+    # Enter ships for player B
+    self.output("Done! Now, " + self.player_a_name +
+                ", turn around! Hit enter when done.")
+    self.get_input()
+    self.enter_ships_for(self.player_b_name)
+    import pprint; pprint.pprint(self.ships)
+    
+  def enter_ships_for(self, player_name):
+    self.output(player_name + ", let's enter your ships.")
+    self.output("For each ship, enter [x,y] coordinates and a direction. For "
+                "example, for a ship starting at [1, 2] and placed "
+                "horizontally, you need to enter 1,2,horizontal. "
+                "Coordinates can be between 0 and 9 and direction is "
+                "horizontal or vertical.")
+    
+    for ship_type, ship_size in constants.SHIPS:
+      invalid_input = True
+      while invalid_input:
+        self.output(ship_type + ":", new_line=False)
+        user_input = self.get_input().split(',')
+        try:
+          if (len(user_input) != 3 or
+              int(user_input[0]) not in range(0, 10) or
+              int(user_input[1]) not in range(0, 10) or
+              user_input[2] not in ["horizontal", "vertical"]):
+            # TODO:Also check for overlapping ships.
+            self.output("Invalid input!")
+          else:
+            x, y, direction = user_input
+            invalid_input = False
+        except:
+          self.output("Invalid input!")
+      self.ships[player_name][ship_type] = (int(x), int(y), direction)
+    
+
     
     
     
