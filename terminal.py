@@ -2,7 +2,8 @@
 
 import board
 import constants
-
+import display
+import sound
 
 class Terminal(object):
   """Acts as the controller for BattleBoat"""
@@ -20,15 +21,18 @@ class Terminal(object):
     self.ship_type_to_index = {}
     for i in range(0, len(constants.SHIPS)):
       self.ship_type_to_index[constants.SHIPS[i][0]] = i
+    self.display = display.display()
   
   def output(self, my_str, new_line=True):
-    if new_line:
-      print my_str
-    else:
-      print my_str,
+    self.display.print_str(my_str)
+#    if new_line:
+#      print my_str
+#    else:
+#      print my_str,
     
   def get_input(self):
-    return raw_input()
+    return self.display.input_str()
+#    return raw_input()
   
   def run(self):
     answer = ""
@@ -68,6 +72,8 @@ class Terminal(object):
     self.get_input()
     self.enter_ships_for(self.player_b_name)
     
+    self.play()
+    
   def play(self):
     # Ping-play play for the game.
     self.output("Done!")
@@ -97,6 +103,7 @@ class Terminal(object):
         success, ship_type = self.boards[other_player].fire_at(
             int(user_input[0]),
             int(user_input[1]))
+        sound.play_sound_for_fire_result((success, ship_type))
         if success == board.Board.OUT_OF_BOUNDS:
           self.output("Don't shoot outside the board!")
         elif success == board.Board.ALREADY_GUESSED:
@@ -113,7 +120,8 @@ class Terminal(object):
       except Exception, e:
         self.output(str(e))
         self.output("Invalid input!")
-    
+    self.display.show_board(self.boards[player])
+
   def enter_ships_for(self, player_name):
     self.output(player_name + ", let's enter your ships.")
     self.output("For each ship, enter [x,y] coordinates and a direction. For "
@@ -138,6 +146,7 @@ class Terminal(object):
         except Exception, e:
           self.output(str(e))
           self.output("Invalid input!")
+      self.display.show_board(self.boards[player_name])
     
   def test(self):
     """Sets up 2 test players and their boards."""

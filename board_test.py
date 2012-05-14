@@ -9,7 +9,8 @@ class TestBoard(unittest.TestCase):
 
   def test_place_ship(self):
     # OK.
-    self.assertTrue(self.board.place_ship(1, 4, 5, board.Board.HORIZONTAL))
+    self.assertEquals(board.Board.PLACED_SHIP,
+                      self.board.place_ship(1, 4, 5, board.Board.HORIZONTAL))
     self.assertTrue(self.board._check_hit(4, 5))
     self.assertTrue(self.board._check_hit(4, 6))
     self.assertTrue(self.board._check_hit(4, 7))
@@ -17,20 +18,25 @@ class TestBoard(unittest.TestCase):
     self.assertFalse(self.board._check_hit(5, 5))
 
     # Out of bounds.
-    self.assertFalse(self.board.place_ship(4, 0, 8, board.Board.HORIZONTAL))
+    self.assertEquals(board.Board.OUT_OF_BOUNDS,
+                      self.board.place_ship(4, 0, 8, board.Board.HORIZONTAL))
     
     # Collide with another ship.
-    self.assertFalse(self.board.place_ship(4, 3, 6, board.Board.VERTICAL))
+    self.assertEquals(board.Board.COLLISION,
+                      self.board.place_ship(4, 3, 6, board.Board.VERTICAL))
 
     # Already placed ship.
-    self.assertFalse(self.board.place_ship(1, 4, 5, board.Board.HORIZONTAL))
+    self.assertEquals(board.Board.ALREADY_PLACED,
+                      self.board.place_ship(1, 4, 5, board.Board.HORIZONTAL))
 
     # Place second ship.
-    self.assertTrue(self.board.place_ship(0, 5, 5, board.Board.VERTICAL))
+    self.assertEquals(board.Board.PLACED_SHIP,
+                      self.board.place_ship(0, 5, 5, board.Board.VERTICAL))
     self.assertTrue(self.board._check_hit(6, 5))
 
   def test_fire(self):
-    self.assertTrue(self.board.place_ship(1, 4, 5, board.Board.HORIZONTAL))
+    self.assertEquals(board.Board.PLACED_SHIP,
+                      self.board.place_ship(1, 4, 5, board.Board.HORIZONTAL))
     self.assertEqual(self.board.OUT_OF_BOUNDS, self.board.fire_at(-2, -2)[0])
     self.assertEqual(self.board.MISS, self.board.fire_at(4, 4)[0])
     self.assertEqual(self.board.MISS, self.board.fire_at(4, 4)[0])

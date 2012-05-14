@@ -1,13 +1,17 @@
-from subprocess import Popen
+import subprocess
 
 import board
 import constants
 
 def _play_sound(filename):
   try:
-    Popen(['mplayer', filename])
+    subprocess.Popen(['mplayer', filename],
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE)
   except:
-    Popen(['afplay', filename])
+    subprocess.Popen(['afplay', filename],
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE)
 
 def play_sound_for_fire_result(result):
   sound = None
