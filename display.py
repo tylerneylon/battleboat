@@ -120,9 +120,9 @@ class display():
     for x in xrange(10):
       for y in xrange(10):
         guess = b.guesses[y][x]
-        if guess is not None:
-          s = 'xx' if guess else 'oo'
-          self.guesswin.addstr(y + 1, 2 * x + 1, s, curses.color_pair(1))
+        attr = curses.color_pair(1 if guess is not None else 2)
+        s = 'xx' if guess else 'oo'
+        self.guesswin.addstr(y + 1, 2 * x + 1, s, attr)
 
     self.shipwin.refresh()
     self.guesswin.refresh()
