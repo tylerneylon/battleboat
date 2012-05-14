@@ -3,10 +3,17 @@
 # Usage:
 #  import display
 #
-#  d = display()
+#  d = display.display()
 #  d.print_str("a str")
+#  s = d.input_str()
+#
+# TODO
+#  Use constants.py
+#  Make screen sizes more adaptive to the user's settings.
 #
 
+
+import board
 import curses
 import time
 
@@ -14,32 +21,48 @@ import time
 f = open('debug_log', 'w')
 term_height = 10
 
+def _add_title(win, title):
+  title = " %s " % title # Add padding around it.
+  h, w = win.getmaxyx()
+  win.addstr(0, ((w - len(title)) // 2), title)
+
 class display():
   # Set up the curses environment.
   def __init__(self):
     f.write('__init__\n')
     self.win = curses.initscr()
+    curses.start_color()
     curses.noecho()
     curses.cbreak()
     self.win.border()
-    h, w = self.win.getmaxyx()
-
-    # Set the title.
-    title = " BattleBoat! "
-    self.win.addstr(0, ((w - len(title)) // 2), title)
+    _add_title(self.win, "BattleBoad!")
 
     # Set up the terminal portion of the screen as the
     # lower 10 lines.
+    h, w = self.win.getmaxyx()
     self.term = self.win.subwin(h - term_height, 0)
     self.term.setscrreg(1, term_height - 2)
     self.term.scrollok(True)
     self.term.border()
-    self.term.move(1, 1)
-    self.win.refresh()
-    self.term.refresh()
+
+    # Set up the ship and guess displays.
+    self.shipwin = self.win.subwin(12, 22, 3, 3)
+    self.shipwin.border()
+    _add_title(self.shipwin, "My Ships")
+
+    self.guesswin = self.win.subwin(12, 22, 3, 30)
+    self.guesswin.border()
+    _add_title(self.guesswin, "My Attacks")
+
+    # Set up color pairs
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
 
     # Keep track of our current position in the terminal.
     self.termline = 1
+    self.term.move(self.termline, 1)
+    self.win.refresh()
+    self.shipwin.refresh()
+    self.term.refresh()
 
     f.write('__init__ done\n')
 
@@ -72,6 +95,38 @@ class display():
     self._scroll_if_needed()
     return s
 
+  def show_board(self, b):
+    f.write('show_board\n')
+    # Draw the boats.
+    f.write('b.ships = %s\n' % `b.ships`)
+    for x in xrange(10):
+      for y in xrange(10):
+        ship = b.ships[y][x]
+        if ship is not None:
+          self.shipwin.addstr(y + 1, 2 * x + 1, ('%d' % ship) * 2, curses.color_pair(1))
+
+    # Draw the attacks on our ocean.
+    f.write('b.ship_hit_map = %s\n' % `b.ship_hit_map`)
+    for x in xrange(10):
+      for y in xrange(10):
+        attack = b.ship_hit_map[y][x]
+        if attack is not None:
+          self.shipwin.addstr(y + 1, 2 * x + 1, 'xx', curses.color_pair(1))
+
+    # Draw the attacks on their ocean (aka guesses).
+    for x in xrange(10):
+      for y in xrange(10):
+        guess = b.guesses[y][x]
+        if guess is not None:
+          s = 'xx' if guess else 'oo'
+          self.guesswin.addstr(y + 1, 2 * x + 1, s, curses.color_pair(1))
+
+    self.shipwin.refresh()
+    self.guesswin.refresh()
+    self.term.refresh()
+    
+    f.write('show_board done\n')
+
   def _scroll_if_needed(self):
     if self.termline == term_height - 1:
       self.termline = term_height - 2
@@ -80,14 +135,27 @@ class display():
     self.term.move(self.termline, 1)
     self.term.refresh()
   
-
 if __name__ == '__main__':
   d = display()
-  slist = ['hi', 'there', 'how', 'are', 'you', 'fine', 'thanks', 'nice', 'of', 'you', 'to', 'ask']
-  for s in slist:
-    d.win.getch()
-    d.print_str(s)
-  s = d.input_str()
-  d.print_str('I got the string %s' % s)
-  time.sleep(2)
+  if True:
+    slist = ['hi', 'there', 'how', 'are', 'you', 'fine', 'thanks', 'nice', 'of', 'you', 'to', 'ask']
+    slist = ['hello', 'there'] # Shorter to test other things more.
+    for s in slist:
+      d.win.getch()
+      d.print_str(s)
+    s = d.input_str()
+    d.print_str('I got the string %s' % s)
+  b = board.Board()
+  b.place_ship(0, 0, 0, board.Board.HORIZONTAL)
+  b.place_ship(1, 1, 0, board.Board.HORIZONTAL)
+  b.place_ship(2, 2, 0, board.Board.HORIZONTAL)
+  b.place_ship(3, 3, 0, board.Board.HORIZONTAL)
+  b.place_ship(4, 4, 0, board.Board.HORIZONTAL)
+  b.fire_at(2, 2)
+  b.fire_at(7, 7)
+  b.record_guess_at(1, 1, True)
+  b.record_guess_at(3, 4, False)
+  f.write('about to show_board\n')
+  d.show_board(b)
+  time.sleep(3)
 
