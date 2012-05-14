@@ -12,6 +12,13 @@ class Board(object):
   HIT = 1
   SUNK = 2
 
+  # Place ship results.
+  INVALID_SHIP = -3
+  OUT_OF_BOUNDS = -2
+  ALREADY_PLACED = -1
+  COLLISION = 0
+  PLACED_SHIP = 1
+
   def __init__(self):
     self.ships = [[None for _ in range(constants.BOARD_SIZE)]
                   for _ in range(constants.BOARD_SIZE)]
@@ -51,9 +58,9 @@ class Board(object):
   def place_ship(self, ship_type, start_row, start_col, direction):
     # Get ship.
     if ship_type < 0 or ship_type >= len(constants.SHIPS):
-      return False
+      return Board.INVALID_SHIP
     if self.placed_ships[ship_type]:
-      return False
+      return Board.ALREADY_PLACED
     ship = constants.SHIPS[ship_type]
 
     # Find ending coordinates.
@@ -67,13 +74,13 @@ class Board(object):
     # Check bounds.
     if (not Board._is_in_bounds(start_row, start_col) or
         not Board._is_in_bounds(end_row, end_col)):
-      return False
+      return Board.OUT_OF_BOUNDS
 
     # Check if board is free.
     for row in range(start_row, end_row + 1):
       for col in range(start_col, end_col + 1):
         if self._check_hit(row, col):
-          return False
+          return Board.COLLISION
 
     # Place ship.
     for row in range(start_row, end_row + 1):
@@ -81,7 +88,7 @@ class Board(object):
         self.ships[row][col] = ship_type
 
     self.placed_ships[ship_type] = True
-    return True
+    return Board.PLACED_SHIP
 
   def _check_hit(self, row, col):
     return self.ships[row][col] is not None
