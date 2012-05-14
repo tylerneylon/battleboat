@@ -75,10 +75,10 @@ class display():
     curses.endwin()
     f.write('__del__ done\n')
 
-  def print_str(self, s):
+  def print_str(self, s, new_line=True):
     f.write('print_str\n')
     self.term.addstr(self.termline, 1, s)
-    self.termline += 1
+    if new_line: self.termline += 1
     self._scroll_if_needed()
 
   def input_str(self):
