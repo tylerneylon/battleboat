@@ -2,7 +2,7 @@
 
 import board
 import constants
-
+import sound
 
 class Terminal(object):
   """Acts as the controller for BattleBoat"""
@@ -97,6 +97,7 @@ class Terminal(object):
         success, ship_type = self.boards[other_player].fire_at(
             int(user_input[0]),
             int(user_input[1]))
+        sound.play_sound_for_fire_result((success, ship_type))
         if success == board.Board.OUT_OF_BOUNDS:
           self.output("Don't shoot outside the board!")
         elif success == board.Board.ALREADY_GUESSED:
