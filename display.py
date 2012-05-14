@@ -55,7 +55,9 @@ class display():
     _add_title(self.guesswin, "My Attacks")
 
     # Set up color pairs
+    # TODO Use named constants for these color pairs.
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
+    curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_BLACK)
 
     # Keep track of our current position in the terminal.
     self.termline = 1
@@ -102,8 +104,9 @@ class display():
     for x in xrange(10):
       for y in xrange(10):
         ship = b.ships[y][x]
-        if ship is not None:
-          self.shipwin.addstr(y + 1, 2 * x + 1, ('%d' % ship) * 2, curses.color_pair(1))
+        attr = curses.color_pair(1 if ship is not None else 2)
+        s = ('%d-' % ship) if ship is not None else '  '
+        self.shipwin.addstr(y + 1, 2 * x + 1, s, attr)
 
     # Draw the attacks on our ocean.
     f.write('b.ship_hit_map = %s\n' % `b.ship_hit_map`)
